@@ -7,17 +7,19 @@ pub struct Pared {
 
 impl Pared {
     pub fn new(posicion_original: Posicion) -> Self {
-        Self {  simbolo: "W".to_string(), 
-                posicion: posicion_original,
-                es_vaciable: false }
+        Self {
+            simbolo: "W".to_string(),
+            posicion: posicion_original,
+            es_vaciable: false,
+        }
     }
 
-    pub fn lastimar(&mut self) -> Vec<Vec<Posicion>>{
+    pub fn lastimar(&mut self) -> Vec<Vec<Posicion>> {
         let vec: Vec<Vec<Posicion>> = Vec::new();
         vec
     }
-    
-    pub fn get_posicion(&self) -> &Posicion{
+
+    pub fn get_posicion(&self) -> &Posicion {
         &self.posicion
     }
 }

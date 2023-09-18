@@ -1,13 +1,13 @@
-mod enemigo;
-mod posicion;
 mod bomba_normal;
 mod bomba_super;
 mod casillero;
-mod mapa;
-mod vacio;
-mod roca;
-mod pared;
 mod desvio;
+mod enemigo;
+mod mapa;
+mod pared;
+mod posicion;
+mod roca;
+mod vacio;
 
 use crate::mapa::Mapa;
 
@@ -40,5 +40,4 @@ fn main() {
     mapa.mostrar();
     mapa.herir_objeto(Posicion { x: 4, y: 2 }, "_00".to_string());
     mapa.mostrar();
-
 }
