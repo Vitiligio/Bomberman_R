@@ -58,14 +58,16 @@ impl Mapa {
         }
     }
 
-    pub fn mostrar(&self) {
-        print!("\n\n");
+    pub fn mostrar(&self) -> String {
+        let mut representacion = String::new();
         for i in &self.matriz {
             for j in i {
-                print!("{} ", j.get_simbolo());
+                representacion.push_str(j.get_simbolo());
+                representacion.push(' ');
             }
-            print!("\n\n");
+            representacion.push('\n');
         }
+        representacion
     }
 
     pub fn vaciar(&mut self, posicion: Posicion) {

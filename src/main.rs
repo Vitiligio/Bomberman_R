@@ -16,13 +16,34 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-fn main() {
-    // Create a path to the desired file
-    let path = Path::new("D:\\Bibliotecas\\Desktop\\pruebaEscritorio.txt");
-    //let path = Path::new("D:\\Bibliotecas\\Desktop\\xd1.txt");
-    //let path = Path::new("D:\\Bibliotecas\\Desktop\\ej3B.txt");
-    let display = path.display();
+use std::env;
 
+fn main() {
+    // Catch the arguments sent via the command line
+    let args: Vec<String> = env::args().collect();
+
+    // Create a path to the desired input file
+    let path = Path::new(&args[1]);
+
+    // Create a path to the desired output file
+    let dir_output = Path::new(&args[2]);
+
+    let ter_arg = args[3].parse::<usize>();
+    let cuart_arg = args[4].parse::<usize>();
+    let mut dir_x = 0;
+    let mut dir_y = 0;
+
+    match ter_arg {
+        Err(why) => println!("{}", why),
+        Ok(resultado) => dir_x = resultado,
+    }
+
+    match cuart_arg {
+        Err(why) => println!("{}", why),
+        Ok(resultado) => dir_y = resultado,
+    }
+
+    let display = path.display();
     // Open the path in read-only mode, returns `io::Result<File>`
     let mut file = match File::open(path) {
         Err(why) => panic!("couldn't open {}: {}", display, why),
@@ -36,8 +57,22 @@ fn main() {
         Ok(_) => print!("{} contains:\n{}", display, s),
     }
 
+    // Create the map from the contents of the file, active the bomb in the coordinates provided
+    // and generated the output in a string
     let mut mapa = Mapa::new(s);
-    mapa.mostrar();
-    mapa.herir_objeto(Posicion { x: 4, y: 2 }, "_00".to_string());
-    mapa.mostrar();
+    mapa.herir_objeto(Posicion { x: dir_y, y: dir_x }, "_00".to_string());
+    let output = mapa.mostrar();
+
+    // Create the output file
+    let display = dir_output.display();
+    let mut file_output = match File::create(dir_output) {
+        Err(why) => panic!("couldn't create {}: {}", display, why),
+        Ok(file_output) => file_output,
+    };
+
+    // Write the output file if possible with the output map
+    match file_output.write_all(output.as_bytes()) {
+        Err(why) => println!("couldn't write to {}: {}", display, why),
+        Ok(_) => println!("successfully wrote to {}", display),
+    }
 }

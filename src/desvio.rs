@@ -18,6 +18,44 @@ impl Desvio {
         &self.posicion
     }
 
+    fn move_down(&self, tope: usize) -> Vec<Posicion> {
+        let mut vec = Vec::new();
+        for i in 1..tope + 1 {
+            vec.push(self.posicion.sumar((i, 0)));
+        }
+        vec
+    }
+
+    fn move_up(&self, tope: usize) -> Vec<Posicion> {
+        let mut vec = Vec::new();
+        for i in 1..tope + 1 {
+            match self.posicion.check_resta((i, 0)) {
+                Some(c) => vec.push(c),
+                None => break,
+            }
+        }
+        vec
+    }
+
+    fn move_right(&self, tope: usize) -> Vec<Posicion> {
+        let mut vec = Vec::new();
+        for i in 1..tope + 1 {
+            vec.push(self.posicion.sumar((0, i)));
+        }
+        vec
+    }
+
+    fn move_left(&self, tope: usize) -> Vec<Posicion> {
+        let mut vec = Vec::new();
+        for i in 1..tope + 1 {
+            match self.posicion.check_resta((0, i)) {
+                Some(c) => vec.push(c),
+                None => break,
+            }
+        }
+        vec
+    }
+
     pub fn desviar(&self, rango: char, posicion: Posicion) -> Vec<Vec<Posicion>> {
         let dir_desvio: Vec<char> = self.simbolo.chars().collect();
         let rango_num = rango as usize - '0' as usize;
@@ -29,39 +67,16 @@ impl Desvio {
         let mut vec = Vec::new();
 
         if dir_desvio[1] == 'D' {
-            for i in 1..cant_a_mover + 1 {
-                vec.push(self.posicion.sumar((i, 0)));
-            }
-            if !vec.is_empty() {
-                vec_filas.push(vec);
-            }
+            vec = self.move_down(cant_a_mover);
         } else if dir_desvio[1] == 'U' {
-            for i in 1..cant_a_mover + 1 {
-                match self.posicion.check_resta((i, 0)) {
-                    Some(c) => vec.push(c),
-                    None => break,
-                }
-            }
-            if !vec.is_empty() {
-                vec_filas.push(vec);
-            }
+            vec = self.move_up(cant_a_mover);
         } else if dir_desvio[1] == 'L' {
-            for i in 1..cant_a_mover + 1 {
-                match self.posicion.check_resta((0, i)) {
-                    Some(c) => vec.push(c),
-                    None => break,
-                }
-            }
-            if !vec.is_empty() {
-                vec_filas.push(vec);
-            }
+            vec = self.move_left(cant_a_mover);
         } else if dir_desvio[1] == 'R' {
-            for i in 1..cant_a_mover + 1 {
-                vec.push(self.posicion.sumar((0, i)));
-            }
-            if !vec.is_empty() {
-                vec_filas.push(vec);
-            }
+            vec = self.move_right(cant_a_mover);
+        }
+        if !vec.is_empty() {
+            vec_filas.push(vec);
         }
         vec_filas
     }
