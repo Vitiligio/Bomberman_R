@@ -51,46 +51,39 @@ impl Enemigo {
 
 #[cfg(test)]
 mod tests {
-    /*
+
+    use crate::casillero::Casillero;
     use crate::enemigo::Enemigo as Enemigo;
     use crate::posicion::Posicion as Posicion;
 
 
     #[test]
     fn test_obtener_posicion_enemigo() {
-        let mut enem: Enemigo = Enemigo::new(2, Posicion { x: 1, y: 2 });
+        let enem: Enemigo = Enemigo::new(2, Posicion { x: 1, y: 2 });
         let posicion_real: &Posicion = enem.get_posicion();
         assert_eq!(posicion_real.x, 1);
         assert_eq!(posicion_real.y, 2);
     }
 
     #[test]
-    fn test_herir_enemigo() {
-        let mut enem: Enemigo = Enemigo::new(2, Posicion { x: 1, y: 2 });
-        enem.lastimar();
-        assert_eq!(enem.get_vida(), &1);
-    }
-
-    #[test]
-    fn test_herir_enemigo_y_actualizar_simbolo() {
-        let mut enem: Enemigo = Enemigo::new(2, Posicion { x: 1, y: 2 });
-        enem.lastimar();
-        assert_eq!(enem.get_simbolo(), &"F1".to_string());
-    }
-
-    #[test]
     fn obtener_simbolo_enemigo() {
         let enem: Enemigo = Enemigo::new(2, Posicion { x: 1, y: 2 });
-        assert_eq!(enem.get_simbolo(), &"F2".to_string());
+        assert_eq!(enem.simbolo, "F2");
+    }
+
+    #[test]
+    fn test_herir_enemigo() {
+        let mut enem: Enemigo = Enemigo::new(2, Posicion { x: 1, y: 2 });
+        enem.lastimar("_-_");
+        assert_eq!(enem.simbolo, "F1");
     }
 
     #[test]
     fn test_herir_enemigo_y_matarlo() {
         let mut enem: Enemigo = Enemigo::new(2, Posicion { x: 1, y: 2 });
-        enem.lastimar();
-        enem.lastimar();
+        enem.lastimar("_-_");
+        enem.lastimar("--_");
         assert_eq!(enem.get_simbolo(), &"_".to_string());
     }
 
-    */
 }
