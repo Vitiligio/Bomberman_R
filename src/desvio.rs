@@ -1,4 +1,21 @@
 use crate::posicion::Posicion;
+/// 
+/// It is the definition of the deflect type
+/// 
+/// # What is inside
+/// The 'simbolo' variable is how it shows on the map
+/// ```
+/// pub simbolo: String,
+/// ```
+/// The 'Posicion' field is the current position of the bomb in the map
+/// ```
+/// posicion: Posicion,
+/// ```
+/// The 'es_vaciable' field says to the map if it should empty this object out of the map
+/// given the correct situation
+/// ```
+/// pub es_vaciable: bool,
+/// ```
 pub struct Desvio {
     pub simbolo: String,
     posicion: Posicion,
@@ -6,6 +23,8 @@ pub struct Desvio {
 }
 
 impl Desvio {
+    ///
+    /// Creates a new defect instance when providing the 'direction' and Position values
     pub fn new(direccion: char, posicion_original: Posicion) -> Self {
         Self {
             simbolo: format!("D{}", direccion),
@@ -14,6 +33,8 @@ impl Desvio {
         }
     }
 
+    ///
+    /// It is used to obtain a reference to the current position in the map of the defect instance
     pub fn get_posicion(&self) -> &Posicion {
         &self.posicion
     }
@@ -56,6 +77,29 @@ impl Desvio {
         vec
     }
 
+    /// This function receives the position of the bomb that reached the 'Desviar' object
+    /// and the range of the explotion.
+    /// With that it is calculated how long should the explotion continue and the direction is hardcoded to the 
+    /// 'Desviar' object once created
+    /// It returns list of lists contaning Positions but the direction will alway be just one
+    /// # Example
+    /// The original map
+    /// ```
+    /// _ _ _ _ _
+    /// _ _ _ _ _
+    /// _ B4 _ DU _
+    /// _ _ _ _ _
+    /// _ _ _ _ _
+    /// ```
+    /// After the explotion
+    /// ```
+    /// _ x _ x _
+    /// _ x _ x _
+    /// x _ x DU _
+    /// _ x _ _ _
+    /// _ x _ _ _
+    /// ```
+    /// See that from 'DU' there is only one row of x coming out
     pub fn desviar(&self, rango: char, posicion: Posicion) -> Vec<Vec<Posicion>> {
         let dir_desvio: Vec<char> = self.simbolo.chars().collect();
         let rango_num = rango as usize - '0' as usize;

@@ -7,11 +7,19 @@ use crate::pared::Pared;
 use crate::posicion::Posicion;
 use crate::roca::Roca;
 use crate::vacio::Vacio;
+
+/// 
+/// It's the definition of the map struct that contains the macro game logic
+/// It contains a matrix of objects that implement the trait 'Casillero'
+/// ```
+/// pub matriz: Vec<Vec<Box<dyn Casillero>>>,
+/// ```
 pub struct Mapa {
     pub matriz: Vec<Vec<Box<dyn Casillero>>>,
 }
 
 impl Mapa {
+    /// Creates a new map instance from a String, the map has to be a square
     pub fn new(texto: String) -> Self {
         let mut vec_filas_matriz: Vec<Vec<Box<dyn Casillero>>> = Vec::new();
         let filas: Vec<&str> = texto.split('\n').collect();
@@ -58,6 +66,10 @@ impl Mapa {
         }
     }
 
+    /// 
+    /// Generates a String representation of the current map status
+    /// reading the symbols of every object contained in the map and arrangeing them
+    /// as each Vector being a different line
     pub fn mostrar(&self) -> String {
         let mut representacion = String::new();
         for i in &self.matriz {
@@ -70,6 +82,9 @@ impl Mapa {
         representacion
     }
 
+    /// 
+    /// Receives a Position to be emptied from the map
+    /// Replaces the object in that position with the object 'Vacio'
     pub fn vaciar(&mut self, posicion: Posicion) {
         if self.matriz[posicion.x][posicion.y].get_simbolo() == &"_".to_string() {
             self.matriz[posicion.x][posicion.y] =

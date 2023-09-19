@@ -1,4 +1,30 @@
 use crate::posicion::Posicion;
+/// 
+/// It is the definition of the enemy type
+/// 
+/// # What is inside
+/// The 'simbolo' variable is how it shows on the map
+/// ```
+/// pub simbolo: String,
+/// ```
+/// The 'vida' field is how many bombs can the enemy take before dying
+/// ```
+/// vida: usize,
+/// ```
+/// The 'Posicion' field is the current position of the bomb in the map
+/// ```
+/// posicion: Posicion,
+/// ```
+/// The 'es_vaciable' field says to the map if it should empty this object out of the map
+/// given the correct situation
+/// ```
+/// pub es_vaciable: bool,
+/// ```
+/// The 'id_bombas' field contains the history of bombs that damaged this object
+/// so one bomb cannot damage more than once the same enemy
+/// ```
+/// id_bombas: Vec<String>,
+/// ```
 pub struct Enemigo {
     pub simbolo: String,
     vida: usize,
@@ -8,6 +34,8 @@ pub struct Enemigo {
 }
 
 impl Enemigo {
+    ///
+    /// Creates a new enemy instance when providing the 'vida' and 'posicion' values
     pub fn new(puntos_vida: usize, posicion_original: Posicion) -> Self {
         Self {
             simbolo: format!("F{}", puntos_vida),
@@ -18,10 +46,19 @@ impl Enemigo {
         }
     }
 
+    ///
+    /// It is used to obtain a reference to the current position in the map of the enemy instance
+    /// Also used to let know the map what position to empty once it dies
     pub fn get_posicion(&self) -> &Posicion {
         &self.posicion
     }
 
+    /// Manages the getting hurt logic of an enemy
+    /// If the life value reaches zero it turns the symbol of the enemy to '_'
+    /// So the map knows to empty out the 'Casillero' in that position
+    /// It also updates the vec of bombs that hurt him, checking before updating the life points if the 
+    /// ID was already saved.
+    /// It returns an empty vector always as the death of the enemy does not affect other 'Casilleros'
     pub fn lastimar(&mut self, id: &str) -> Vec<Vec<Posicion>> {
         if !self.fue_herido_por(id) {
             self.vida -= 1;
