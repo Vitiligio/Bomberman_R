@@ -87,57 +87,56 @@ impl Desvio {
 
 #[cfg(test)]
 mod tests {
-    
-    use crate::posicion::Posicion as Posicion;
-    use crate::desvio::Desvio as Desvio;
+
+    use crate::desvio::Desvio;
+    use crate::posicion::Posicion;
 
     #[test]
     fn test_crear_desvio_hacia_arriba() {
-        let desvio = Desvio::new('U', Posicion { x:0, y:0 });
+        let desvio = Desvio::new('U', Posicion { x: 0, y: 0 });
         assert_eq!(desvio.simbolo, "DU".to_string());
     }
     #[test]
     fn test_crear_desvio_hacia_abajo() {
-        let desvio = Desvio::new('D', Posicion { x:0, y:0 });
+        let desvio = Desvio::new('D', Posicion { x: 0, y: 0 });
         assert_eq!(desvio.simbolo, "DD".to_string());
     }
     #[test]
     fn test_crear_desvio_hacia_derecha() {
-        let desvio = Desvio::new('R', Posicion { x:0, y:0 });
+        let desvio = Desvio::new('R', Posicion { x: 0, y: 0 });
         assert_eq!(desvio.simbolo, "DR".to_string());
     }
     #[test]
     fn test_crear_desvio_hacia_izquierda() {
-        let desvio = Desvio::new('L', Posicion { x:0, y:0 });
+        let desvio = Desvio::new('L', Posicion { x: 0, y: 0 });
         assert_eq!(desvio.simbolo, "DL".to_string());
     }
 
     #[test]
     fn test_desviar_bomba_hacia_abajo() {
-        let desvio = Desvio::new('D', Posicion { x:5, y:5 });
-        let vec_desviado = desvio.desviar('3', Posicion { x:5, y:4 });
+        let desvio = Desvio::new('D', Posicion { x: 5, y: 5 });
+        let vec_desviado = desvio.desviar('3', Posicion { x: 5, y: 4 });
         assert_eq!(vec_desviado.len() as usize, 1);
     }
 
     #[test]
     fn test_desviar_bomba_hacia_arriba() {
-        let desvio = Desvio::new('U', Posicion { x:5, y:5 });
-        let vec_desviado = desvio.desviar('3', Posicion { x:5, y:4 });
+        let desvio = Desvio::new('U', Posicion { x: 5, y: 5 });
+        let vec_desviado = desvio.desviar('3', Posicion { x: 5, y: 4 });
         assert_eq!(vec_desviado.len() as usize, 1);
     }
 
     #[test]
     fn test_desviar_bomba_hacia_derecha() {
-        let desvio = Desvio::new('R', Posicion { x:5, y:5 });
-        let vec_desviado = desvio.desviar('3', Posicion { x:4, y:5 });
+        let desvio = Desvio::new('R', Posicion { x: 5, y: 5 });
+        let vec_desviado = desvio.desviar('3', Posicion { x: 4, y: 5 });
         assert_eq!(vec_desviado.len() as usize, 1);
     }
 
     #[test]
     fn test_desviar_bomba_hacia_izquierda() {
-        let desvio = Desvio::new('L', Posicion { x:5, y:5 });
-        let vec_desviado = desvio.desviar('3', Posicion { x:4, y:5 });
+        let desvio = Desvio::new('L', Posicion { x: 5, y: 5 });
+        let vec_desviado = desvio.desviar('3', Posicion { x: 4, y: 5 });
         assert_eq!(vec_desviado.len() as usize, 1);
     }
-    
 }

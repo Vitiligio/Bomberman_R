@@ -1,4 +1,26 @@
 use crate::posicion::Posicion;
+
+/// 
+/// It is the definition of the common bomb type
+/// 
+/// # What is inside
+/// The 'simbolo' variable is how it shows on the map
+/// ```
+/// pub simbolo: String,
+/// ```
+/// The 'rango' field is the size of the explotion caused by the bomb
+/// ```
+/// rango: usize,
+/// ```
+/// The 'Posicion' field is the current position of the bomb in the map
+/// ```
+/// posicion: Posicion,
+/// ```
+/// The 'es_vaciable' field says to the map if it should empty this object out of the map
+/// given the correct situation
+/// ```
+/// pub es_vaciable: bool,
+/// ```
 pub struct BombaNormal {
     pub simbolo: String,
     rango: usize,
@@ -60,19 +82,19 @@ impl BombaNormal {
 
 #[cfg(test)]
 mod tests {
-    
-    use crate::posicion::Posicion as Posicion;
-    use crate::bomba_normal::BombaNormal as BombaNormal;
+
+    use crate::bomba_normal::BombaNormal;
+    use crate::posicion::Posicion;
 
     #[test]
     fn test_crear_bomba_con_rango() {
-        let bomba_normal = BombaNormal::new(2, Posicion { x:0, y:0 });
+        let bomba_normal = BombaNormal::new(2, Posicion { x: 0, y: 0 });
         assert_eq!(bomba_normal.simbolo, "B2".to_string());
     }
 
     #[test]
     fn test_explotar_bomba_cambia_su_simbolo() {
-        let mut bomba_normal = BombaNormal::new(2, Posicion { x:0, y:0 });
+        let mut bomba_normal = BombaNormal::new(2, Posicion { x: 0, y: 0 });
         bomba_normal.explotar();
         assert_eq!(bomba_normal.simbolo, "_".to_string());
     }
@@ -80,9 +102,8 @@ mod tests {
     #[test]
     fn test_explotar_bomba_devuelve_vec_posiciones() {
         let n = 3;
-        let mut bomba_normal = BombaNormal::new(n, Posicion { x:5, y:5 });
+        let mut bomba_normal = BombaNormal::new(n, Posicion { x: 5, y: 5 });
         let vec_posiciones_afectadas = bomba_normal.explotar();
         assert_ne!(vec_posiciones_afectadas.len() as usize, 0);
     }
-    
 }

@@ -60,19 +60,19 @@ impl BombaTraspaso {
 
 #[cfg(test)]
 mod tests {
-    
-    use crate::posicion::Posicion as Posicion;
-    use crate::bomba_super::BombaTraspaso as BombaTraspaso;
+
+    use crate::bomba_super::BombaTraspaso;
+    use crate::posicion::Posicion;
 
     #[test]
     fn test_crear_bomba_con_rango() {
-        let bomba_normal = BombaTraspaso::new(2, Posicion { x:0, y:0 });
+        let bomba_normal = BombaTraspaso::new(2, Posicion { x: 0, y: 0 });
         assert_eq!(bomba_normal.simbolo, "S2".to_string());
     }
 
     #[test]
     fn test_explotar_bomba_cambia_su_simbolo() {
-        let mut bomba_normal = BombaTraspaso::new(2, Posicion { x:0, y:0 });
+        let mut bomba_normal = BombaTraspaso::new(2, Posicion { x: 0, y: 0 });
         bomba_normal.explotar();
         assert_eq!(bomba_normal.simbolo, "_".to_string());
     }
@@ -80,9 +80,8 @@ mod tests {
     #[test]
     fn test_explotar_bomba_devuelve_vec_posiciones() {
         let n = 3;
-        let mut bomba_normal = BombaTraspaso::new(n, Posicion { x:5, y:5 });
+        let mut bomba_normal = BombaTraspaso::new(n, Posicion { x: 5, y: 5 });
         let vec_posiciones_afectadas = bomba_normal.explotar();
         assert_ne!(vec_posiciones_afectadas.len() as usize, 0);
     }
-    
 }

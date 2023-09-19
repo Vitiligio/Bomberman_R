@@ -53,9 +53,8 @@ impl Enemigo {
 mod tests {
 
     use crate::casillero::Casillero;
-    use crate::enemigo::Enemigo as Enemigo;
-    use crate::posicion::Posicion as Posicion;
-
+    use crate::enemigo::Enemigo;
+    use crate::posicion::Posicion;
 
     #[test]
     fn test_obtener_posicion_enemigo() {
@@ -85,5 +84,4 @@ mod tests {
         enem.lastimar("--_");
         assert_eq!(enem.get_simbolo(), &"_".to_string());
     }
-
 }
