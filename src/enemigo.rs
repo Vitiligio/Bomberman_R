@@ -1,7 +1,7 @@
 use crate::posicion::Posicion;
-/// 
+///
 /// It is the definition of the enemy type
-/// 
+///
 /// # What is inside
 /// The 'simbolo' variable is how it shows on the map
 /// ```
@@ -56,7 +56,7 @@ impl Enemigo {
     /// Manages the getting hurt logic of an enemy
     /// If the life value reaches zero it turns the symbol of the enemy to '_'
     /// So the map knows to empty out the 'Casillero' in that position
-    /// It also updates the vec of bombs that hurt him, checking before updating the life points if the 
+    /// It also updates the vec of bombs that hurt him, checking before updating the life points if the
     /// ID was already saved.
     /// It returns an empty vector always as the death of the enemy does not affect other 'Casilleros'
     pub fn lastimar(&mut self, id: &str) -> Vec<Vec<Posicion>> {

@@ -1,7 +1,7 @@
 use crate::posicion::Posicion;
-/// 
+///
 /// It is the definition of the empty type
-/// 
+///
 /// # What is inside
 /// The 'simbolo' variable is how it shows on the map
 /// ```

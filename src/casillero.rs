@@ -9,10 +9,14 @@ use crate::vacio::Vacio;
 
 ///
 /// Definition of the functions that should implement every object saved in the map
-/// The Trait Casillero is what composes the map. So every object stored and used by the map 
+/// The Trait Casillero is what composes the map. So every object stored and used by the map
 /// implements this trait
 pub trait Casillero {
+    /// Provides a reference of the current symbol that should display in the map representing
+    /// the current status of the object
     fn get_simbolo(&self) -> &String;
+
+    /// Provides a copy of the current position in the map of the object implementing this trait
     fn copiar_posicion(&self) -> Posicion;
 
     /// Informs to the map if the object could be removed from the map
@@ -26,10 +30,13 @@ pub trait Casillero {
 }
 
 impl Casillero for Enemigo {
+    /// Provides a reference of the current symbol that should display in the map representing
+    /// the current status of the object
     fn get_simbolo(&self) -> &String {
         &self.simbolo
     }
 
+    /// Provides a copy of the current position in the map of the object
     fn copiar_posicion(&self) -> Posicion {
         self.get_posicion().clone()
     }
@@ -51,10 +58,13 @@ impl Casillero for Enemigo {
 }
 
 impl Casillero for BombaNormal {
+    /// Provides a reference of the current symbol that should display in the map representing
+    /// the current status of the object
     fn get_simbolo(&self) -> &String {
         &self.simbolo
     }
 
+    /// Provides a copy of the current position in the map of the object
     fn copiar_posicion(&self) -> Posicion {
         self.get_posicion().clone()
     }
@@ -76,10 +86,13 @@ impl Casillero for BombaNormal {
 }
 
 impl Casillero for BombaTraspaso {
+    /// Provides a reference of the current symbol that should display in the map representing
+    /// the current status of the object
     fn get_simbolo(&self) -> &String {
         &self.simbolo
     }
 
+    /// Provides a copy of the current position in the map of the object
     fn copiar_posicion(&self) -> Posicion {
         self.get_posicion().clone()
     }
@@ -101,10 +114,13 @@ impl Casillero for BombaTraspaso {
 }
 
 impl Casillero for Vacio {
+    /// Provides a reference of the current symbol that should display in the map representing
+    /// the current status of the object
     fn get_simbolo(&self) -> &String {
         &self.simbolo
     }
 
+    /// Provides a copy of the current position in the map of the object
     fn copiar_posicion(&self) -> Posicion {
         self.get_posicion().clone()
     }
@@ -127,10 +143,13 @@ impl Casillero for Vacio {
 }
 
 impl Casillero for Roca {
+    /// Provides a reference of the current symbol that should display in the map representing
+    /// the current status of the object
     fn get_simbolo(&self) -> &String {
         &self.simbolo
     }
 
+    /// Provides a copy of the current position in the map of the object
     fn copiar_posicion(&self) -> Posicion {
         self.get_posicion().clone()
     }
@@ -154,10 +173,13 @@ impl Casillero for Roca {
 }
 
 impl Casillero for Pared {
+    /// Provides a reference of the current symbol that should display in the map representing
+    /// the current status of the object
     fn get_simbolo(&self) -> &String {
         &self.simbolo
     }
 
+    /// Provides a copy of the current position in the map of the object
     fn copiar_posicion(&self) -> Posicion {
         self.get_posicion().clone()
     }
@@ -180,10 +202,13 @@ impl Casillero for Pared {
 }
 
 impl Casillero for Desvio {
+    /// Provides a reference of the current symbol that should display in the map representing
+    /// the current status of the object
     fn get_simbolo(&self) -> &String {
         &self.simbolo
     }
 
+    /// Provides a copy of the current position in the map of the object
     fn copiar_posicion(&self) -> Posicion {
         self.get_posicion().clone()
     }

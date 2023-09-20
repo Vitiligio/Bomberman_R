@@ -1,7 +1,7 @@
 #[derive(Clone, Debug)]
- 
+
 /// It is the definition of the position type
-/// 
+///
 /// # What is inside
 /// The 'x' variable indicates the number of file
 /// ```

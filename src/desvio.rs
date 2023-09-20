@@ -1,13 +1,13 @@
 use crate::posicion::Posicion;
-/// 
+///
 /// It is the definition of the deflect type
-/// 
+///
 /// # What is inside
 /// The 'simbolo' variable is how it shows on the map
 /// ```
 /// pub simbolo: String,
 /// ```
-/// The 'Posicion' field is the current position of the bomb in the map
+/// The 'Posicion' field is the current position of the deflect in the map
 /// ```
 /// posicion: Posicion,
 /// ```
@@ -79,7 +79,7 @@ impl Desvio {
 
     /// This function receives the position of the bomb that reached the 'Desviar' object
     /// and the range of the explotion.
-    /// With that it is calculated how long should the explotion continue and the direction is hardcoded to the 
+    /// With that it is calculated how long should the explotion continue and the direction is hardcoded to the
     /// 'Desviar' object once created
     /// It returns list of lists contaning Positions but the direction will alway be just one
     /// # Example

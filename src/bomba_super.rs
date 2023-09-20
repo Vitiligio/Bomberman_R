@@ -1,8 +1,8 @@
 use crate::posicion::Posicion;
-/// 
+///
 /// It is the definition of the super bomb type
 /// The difference between this type and the common bomb is how the interact with the other objects
-/// 
+///
 /// # What is inside
 /// The 'simbolo' variable is how it shows on the map
 /// ```
@@ -48,22 +48,22 @@ impl BombaTraspaso {
     }
 
     ///
-/// This function explodes the bomb and returns a list of lists contaning Positions
-/// that continue each vector in a specific direction
-///  # A bomb explodes in the coordinate (2, 2) with a 'rango' of 2
-/// ```
-/// let bomba_super = BombaTraspaso::new(2, Posicion { x: 2, y: 2 });
-/// let vec_result = bomba_super.explotar();
-/// ```
-/// vec_result will contain [[(1, 2), (0, 2)], [(3, 2), (4, 2)], [(2, 1), (2, 0)], [(2, 3), (0, 4)]]
-/// Seen in the map, the positions obtained will be
-/// ```
-/// _ _ x _ _
-/// _ _ x _ _
-/// x x _ x x
-/// _ _ x _ _
-/// _ _ x _ _
-/// ```
+    /// This function explodes the bomb and returns a list of lists contaning Positions
+    /// that continue each vector in a specific direction
+    ///  # A bomb explodes in the coordinate (2, 2) with a 'rango' of 2
+    /// ```
+    /// let bomba_super = BombaTraspaso::new(2, Posicion { x: 2, y: 2 });
+    /// let vec_result = bomba_super.explotar();
+    /// ```
+    /// vec_result will contain [[(1, 2), (0, 2)], [(3, 2), (4, 2)], [(2, 1), (2, 0)], [(2, 3), (0, 4)]]
+    /// Seen in the map, the positions obtained will be
+    /// ```
+    /// _ _ x _ _
+    /// _ _ x _ _
+    /// x x _ x x
+    /// _ _ x _ _
+    /// _ _ x _ _
+    /// ```
     pub fn explotar(&mut self) -> Vec<Vec<Posicion>> {
         self.simbolo = "_".to_string();
 

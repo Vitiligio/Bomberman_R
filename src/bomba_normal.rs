@@ -1,8 +1,8 @@
 use crate::posicion::Posicion;
 
-/// 
+///
 /// It is the definition of the common bomb type
-/// 
+///
 /// # What is inside
 /// The 'simbolo' variable is how it shows on the map
 /// ```
@@ -39,31 +39,31 @@ impl BombaNormal {
             es_vaciable: true,
         }
     }
-///
-/// It is used to obtain a reference to the current position in the map of the common bomb
-/// Is used to generate the ID of the bomb when damaging other objects if needed
-/// Also used to let know the map what position to empty once it explodes
+    ///
+    /// It is used to obtain a reference to the current position in the map of the common bomb
+    /// Is used to generate the ID of the bomb when damaging other objects if needed
+    /// Also used to let know the map what position to empty once it explodes
     pub fn get_posicion(&self) -> &Posicion {
         &self.posicion
     }
 
-///
-/// This function explodes the bomb and returns a list of lists contaning Positions
-/// that continue each vector in a specific direction
-///  # A bomb explodes in the coordinate (2, 2) with a 'rango' of 2
-/// ```
-/// let bomba_normal = BombaNormal::new(2, Posicion { x: 2, y: 2 });
-/// let vec_result = bomba_normal.explotar();
-/// ```
-/// vec_result will contain [[(1, 2), (0, 2)], [(3, 2), (4, 2)], [(2, 1), (2, 0)], [(2, 3), (0, 4)]]
-/// Seen in the map, the positions obtained will be
-/// ```
-/// _ _ x _ _
-/// _ _ x _ _
-/// x x _ x x
-/// _ _ x _ _
-/// _ _ x _ _
-/// ```
+    ///
+    /// This function explodes the bomb and returns a list of lists contaning Positions
+    /// that continue each vector in a specific direction
+    ///  # A bomb explodes in the coordinate (2, 2) with a 'rango' of 2
+    /// ```
+    /// let bomba_normal = BombaNormal::new(2, Posicion { x: 2, y: 2 });
+    /// let vec_result = bomba_normal.explotar();
+    /// ```
+    /// vec_result will contain [[(1, 2), (0, 2)], [(3, 2), (4, 2)], [(2, 1), (2, 0)], [(2, 3), (0, 4)]]
+    /// Seen in the map, the positions obtained will be
+    /// ```
+    /// _ _ x _ _
+    /// _ _ x _ _
+    /// x x _ x x
+    /// _ _ x _ _
+    /// _ _ x _ _
+    /// ```
     pub fn explotar(&mut self) -> Vec<Vec<Posicion>> {
         self.simbolo = "_".to_string();
 
