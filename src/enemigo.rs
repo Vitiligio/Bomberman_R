@@ -1,4 +1,5 @@
 use crate::posicion::Posicion;
+use crate::rafaga::Rafaga;
 ///
 /// It is the definition of the enemy type
 ///
@@ -59,7 +60,7 @@ impl Enemigo {
     /// It also updates the vec of bombs that hurt him, checking before updating the life points if the
     /// ID was already saved.
     /// It returns an empty vector always as the death of the enemy does not affect other 'Casilleros'
-    pub fn lastimar(&mut self, id: &str) -> Vec<Vec<Posicion>> {
+    pub fn lastimar(&mut self, id: &str) -> Vec<Vec<Rafaga>> {
         if !self.fue_herido_por(id) {
             self.vida -= 1;
             self.simbolo = format!("F{}", self.vida);
@@ -67,7 +68,7 @@ impl Enemigo {
                 self.simbolo = "_".to_string();
             }
         }
-        let vec: Vec<Vec<Posicion>> = Vec::new();
+        let vec: Vec<Vec<Rafaga>> = Vec::new();
         vec
     }
 

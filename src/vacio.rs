@@ -1,4 +1,5 @@
 use crate::posicion::Posicion;
+use crate::rafaga::Rafaga;
 ///
 /// It is the definition of the empty type
 ///
@@ -36,8 +37,8 @@ impl Vacio {
     ///
     /// Manages the logic behind hurting the empty instance
     /// For the current game logic, it only returns an empty vector
-    pub fn lastimar(&mut self) -> Vec<Vec<Posicion>> {
-        let vec: Vec<Vec<Posicion>> = Vec::new();
+    pub fn lastimar(&mut self) -> Vec<Vec<Rafaga>> {
+        let vec: Vec<Vec<Rafaga>> = Vec::new();
         vec
     }
 

@@ -1,17 +1,19 @@
 mod bomba_normal;
-mod bomba_super;
 mod casillero;
 mod desvio;
 mod enemigo;
 mod mapa;
 mod pared;
 mod posicion;
+mod rafaga;
 mod roca;
 mod vacio;
 
 use crate::mapa::Mapa;
 
 use crate::posicion::Posicion;
+use crate::rafaga::Rafaga;
+
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
@@ -25,8 +27,25 @@ pub fn escribir_archivo(path: &Path, contenido: String) {
         let mut file = file_output;
         match file.write_all(contenido.as_bytes()) {
             Err(why) => println!("couldn't write to {}: {}", display, why),
-            Ok(_) => println!("succesfull write to {}", display),
+            Ok(_) => return,
         }
+    }
+}
+
+pub fn activar_primer_bomba(maps: Mapa, dir_y: usize, dir_x: usize, dir_output: &Path) {
+    let mut mapa = maps;
+    if mapa.there_is_a_bomb_at(Posicion { x: dir_y, y: dir_x }) {
+        mapa.herir_objeto(Rafaga::new(
+            "_".to_string(),
+            2,
+            Posicion { x: dir_y, y: dir_x },
+        ));
+        escribir_archivo(dir_output, mapa.mostrar())
+    } else {
+        escribir_archivo(
+            dir_output,
+            format!("There is not a bomb at {} {}", dir_y, dir_x),
+        )
     }
 }
 
@@ -80,19 +99,8 @@ fn main() {
 
     // Create the map from the contents of the file, active the bomb in the coordinates provided
     // and generated the output in a string
-    if let Ok(maps) = Mapa::new(map_reading.clone()) {
-        let mut mapa = maps;
-        if mapa.there_is_a_bomb_at(Posicion { x: dir_y, y: dir_x }) {
-            mapa.herir_objeto(Posicion { x: dir_y, y: dir_x }, "_00".to_string());
-            let output = mapa.mostrar();
-            escribir_archivo(dir_output, output);
-        } else {
-            let contenido = "ERROR: There is no bomb at position provided".to_string();
-            escribir_archivo(dir_output, contenido)
-        }
-    } else if let Err(err) = Mapa::new(map_reading) {
-        escribir_archivo(dir_output, err);
+    match Mapa::new(map_reading.clone()) {
+        Ok(maps) => activar_primer_bomba(maps, dir_y, dir_x, dir_output),
+        Err(e) => escribir_archivo(dir_output, e),
     }
-
-    //
 }

@@ -1,4 +1,6 @@
 use crate::posicion::Posicion;
+use crate::rafaga::Rafaga;
+
 ///
 /// It is the definition of the deflect type
 ///
@@ -39,39 +41,55 @@ impl Desvio {
         &self.posicion
     }
 
-    fn move_down(&self, tope: usize) -> Vec<Posicion> {
-        let mut vec = Vec::new();
-        for i in 1..tope + 1 {
-            vec.push(self.posicion.sumar((i, 0)));
+    fn move_down(&self, rafaga: Rafaga) -> Vec<Rafaga> {
+        let mut vec: Vec<Rafaga> = Vec::new();
+        for i in 1..rafaga.get_rango() + 1 {
+            vec.push(Rafaga::new(
+                rafaga.get_id().clone(),
+                rafaga.get_rango() - i,
+                self.posicion.sumar((i, 0)),
+            ));
         }
         vec
     }
 
-    fn move_up(&self, tope: usize) -> Vec<Posicion> {
-        let mut vec = Vec::new();
-        for i in 1..tope + 1 {
+    fn move_up(&self, rafaga: Rafaga) -> Vec<Rafaga> {
+        let mut vec: Vec<Rafaga> = Vec::new();
+        for i in 1..rafaga.get_rango() + 1 {
             match self.posicion.check_resta((i, 0)) {
-                Some(c) => vec.push(c),
-                None => break,
+                Some(c) => vec.push(Rafaga::new(
+                    rafaga.get_id().clone(),
+                    rafaga.get_rango() - i,
+                    c,
+                )),
+                None => continue,
             }
         }
         vec
     }
 
-    fn move_right(&self, tope: usize) -> Vec<Posicion> {
-        let mut vec = Vec::new();
-        for i in 1..tope + 1 {
-            vec.push(self.posicion.sumar((0, i)));
+    fn move_right(&self, rafaga: Rafaga) -> Vec<Rafaga> {
+        let mut vec: Vec<Rafaga> = Vec::new();
+        for i in 1..rafaga.get_rango() + 1 {
+            vec.push(Rafaga::new(
+                rafaga.get_id().clone(),
+                rafaga.get_rango() - i,
+                self.posicion.sumar((0, i)),
+            ));
         }
         vec
     }
 
-    fn move_left(&self, tope: usize) -> Vec<Posicion> {
-        let mut vec = Vec::new();
-        for i in 1..tope + 1 {
+    fn move_left(&self, rafaga: Rafaga) -> Vec<Rafaga> {
+        let mut vec: Vec<Rafaga> = Vec::new();
+        for i in 1..rafaga.get_rango() + 1 {
             match self.posicion.check_resta((0, i)) {
-                Some(c) => vec.push(c),
-                None => break,
+                Some(c) => vec.push(Rafaga::new(
+                    rafaga.get_id().clone(),
+                    rafaga.get_rango() - i,
+                    c,
+                )),
+                None => continue,
             }
         }
         vec
@@ -100,27 +118,20 @@ impl Desvio {
     /// _ x _ _ _
     /// ```
     /// See that from 'DU' there is only one row of x coming out
-    pub fn desviar(&self, rango: char, posicion: Posicion) -> Vec<Vec<Posicion>> {
+    pub fn desviar(&self, rafaga: Rafaga) -> Vec<Vec<Rafaga>> {
         let dir_desvio: Vec<char> = self.simbolo.chars().collect();
-        let rango_num = rango as usize - '0' as usize;
-        let x = posicion.x.abs_diff(self.posicion.x);
-        let y = posicion.y.abs_diff(self.posicion.y);
-        // X o Y va a valer cero, me aprovecho de eso y los sumo
-        let mut cant_a_mover = 0;
-        if (x + y) < rango_num {
-            cant_a_mover = (x + y).abs_diff(rango_num);
-        }
-        let mut vec_filas = Vec::new();
-        let mut vec = Vec::new();
+
+        let mut vec_filas: Vec<Vec<Rafaga>> = Vec::new();
+        let mut vec: Vec<Rafaga> = Vec::new();
 
         if dir_desvio[1] == 'D' {
-            vec = self.move_down(cant_a_mover);
+            vec = self.move_down(rafaga);
         } else if dir_desvio[1] == 'U' {
-            vec = self.move_up(cant_a_mover);
+            vec = self.move_up(rafaga);
         } else if dir_desvio[1] == 'L' {
-            vec = self.move_left(cant_a_mover);
+            vec = self.move_left(rafaga);
         } else if dir_desvio[1] == 'R' {
-            vec = self.move_right(cant_a_mover);
+            vec = self.move_right(rafaga);
         }
         if !vec.is_empty() {
             vec_filas.push(vec);
@@ -134,6 +145,7 @@ mod tests {
 
     use crate::desvio::Desvio;
     use crate::posicion::Posicion;
+    use crate::rafaga::Rafaga;
 
     #[test]
     fn test_crear_desvio_hacia_arriba() {
@@ -159,28 +171,28 @@ mod tests {
     #[test]
     fn test_desviar_bomba_hacia_abajo() {
         let desvio = Desvio::new('D', Posicion { x: 5, y: 5 });
-        let vec_desviado = desvio.desviar('3', Posicion { x: 5, y: 4 });
+        let vec_desviado = desvio.desviar(Rafaga::new("_".to_string(), 5, Posicion { x: 5, y: 4 }));
         assert_eq!(vec_desviado.len() as usize, 1);
     }
 
     #[test]
     fn test_desviar_bomba_hacia_arriba() {
         let desvio = Desvio::new('U', Posicion { x: 5, y: 5 });
-        let vec_desviado = desvio.desviar('3', Posicion { x: 5, y: 4 });
+        let vec_desviado = desvio.desviar(Rafaga::new("_".to_string(), 5, Posicion { x: 5, y: 4 }));
         assert_eq!(vec_desviado.len() as usize, 1);
     }
 
     #[test]
     fn test_desviar_bomba_hacia_derecha() {
         let desvio = Desvio::new('R', Posicion { x: 5, y: 5 });
-        let vec_desviado = desvio.desviar('3', Posicion { x: 4, y: 5 });
+        let vec_desviado = desvio.desviar(Rafaga::new("_".to_string(), 5, Posicion { x: 4, y: 5 }));
         assert_eq!(vec_desviado.len() as usize, 1);
     }
 
     #[test]
     fn test_desviar_bomba_hacia_izquierda() {
         let desvio = Desvio::new('L', Posicion { x: 5, y: 5 });
-        let vec_desviado = desvio.desviar('3', Posicion { x: 4, y: 5 });
+        let vec_desviado = desvio.desviar(Rafaga::new("_".to_string(), 5, Posicion { x: 4, y: 5 }));
         assert_eq!(vec_desviado.len() as usize, 1);
     }
 }

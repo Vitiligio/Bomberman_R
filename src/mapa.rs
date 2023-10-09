@@ -1,10 +1,10 @@
-use crate::bomba_normal::BombaNormal;
-use crate::bomba_super::BombaTraspaso;
+use crate::bomba_normal::Bomba;
 use crate::casillero::Casillero;
 use crate::desvio::Desvio;
 use crate::enemigo::Enemigo;
 use crate::pared::Pared;
 use crate::posicion::Posicion;
+use crate::rafaga::Rafaga;
 use crate::roca::Roca;
 use crate::vacio::Vacio;
 
@@ -33,10 +33,10 @@ impl Mapa {
                 if x.is_empty() {
                     break;
                 };
-                vec_casillero.push(Mapa::crear_casillero(
-                    x,
-                    Posicion::new(indice_fila, indice_columna),
-                ));
+                match Mapa::crear_casillero(x, Posicion::new(indice_fila, indice_columna)) {
+                    Ok(t) => vec_casillero.push(t),
+                    Err(e) => return Err(e),
+                }
             }
             vec_filas_matriz.push(vec_casillero);
         }
@@ -50,24 +50,30 @@ impl Mapa {
         })
     }
 
-    fn crear_casillero(vec: Vec<char>, posicion: Posicion) -> Box<dyn Casillero> {
+    fn crear_casillero(vec: Vec<char>, posicion: Posicion) -> Result<Box<dyn Casillero>, String> {
         if vec[0] == 'F' {
             let numero_casteado = vec[1] as usize - '0' as usize;
-            Box::new(Enemigo::new(numero_casteado, posicion))
+            Ok(Box::new(Enemigo::new(numero_casteado, posicion)))
         } else if vec[0] == 'B' {
             let numero_casteado = vec[1] as usize - '0' as usize;
-            Box::new(BombaNormal::new(numero_casteado, posicion))
+            Ok(Box::new(Bomba::new('B', numero_casteado, posicion)))
         } else if vec[0] == 'S' {
             let numero_casteado = vec[1] as usize - '0' as usize;
-            Box::new(BombaTraspaso::new(numero_casteado, posicion))
+            Ok(Box::new(Bomba::new('S', numero_casteado, posicion)))
         } else if vec[0] == 'R' {
-            Box::new(Roca::new(posicion))
+            Ok(Box::new(Roca::new(posicion)))
         } else if vec[0] == 'W' {
-            Box::new(Pared::new(posicion))
+            Ok(Box::new(Pared::new(posicion)))
+        } else if vec[0] == '_' {
+            Ok(Box::new(Vacio::new(posicion)))
         } else if vec[0] == 'D' {
-            Box::new(Desvio::new(vec[1], posicion))
+            if vec.len() == 1 {
+                Err("ERROR: After D, it should be U, D, L or R".to_string())
+            } else {
+                Ok(Box::new(Desvio::new(vec[1], posicion)))
+            }
         } else {
-            Box::new(Vacio::new(posicion))
+            Err("ERROR: Char is not recognized as valid".to_string())
         }
     }
 
@@ -82,8 +88,10 @@ impl Mapa {
                 representacion.push_str(j.get_simbolo());
                 representacion.push(' ');
             }
+            representacion.pop();
             representacion.push('\n');
         }
+        representacion.pop();
         representacion
     }
 
@@ -103,36 +111,32 @@ impl Mapa {
     /// The object being hurt will respond with a list of lists of positions to be hurt as a consequence
     /// This generates a recursive process that works thru the chain reactions
     /// Here is called for the 'Casilleros' to be emptied if needed
-    pub fn herir_objeto(&mut self, posicion: Posicion, id: String) {
+    pub fn herir_objeto(&mut self, rafaga: Rafaga) {
         let tamano = self.matriz.len();
+        let posicion = rafaga.get_posicion();
         if posicion.x < tamano && posicion.y < tamano {
-            let simbolo_que_hiere = &self.matriz[posicion.x][posicion.y].get_simbolo().clone();
-            let repercusiones: Vec<Vec<Posicion>> = self.matriz[posicion.x][posicion.y].herir(&id);
+            let repercusiones: Vec<Vec<Rafaga>> =
+                self.matriz[posicion.x][posicion.y].herir(&rafaga);
             if self.matriz[posicion.x][posicion.y].vaciable() {
                 self.vaciar(Posicion {
                     x: posicion.x,
                     y: posicion.y,
                 })
             }
-            let x: Vec<char> = simbolo_que_hiere.chars().collect();
             if !repercusiones.is_empty() {
-                if x[0] == 'D' {
-                    self.analizar_repercusiones(repercusiones, id);
-                } else {
-                    let id = format!("{simbolo_que_hiere}{}{}", posicion.x, posicion.y);
-                    self.analizar_repercusiones(repercusiones, id);
-                }
+                self.analizar_repercusiones(repercusiones);
             }
         }
     }
 
-    fn analizar_repercusiones(&mut self, vec_rep: Vec<Vec<Posicion>>, origen: String) {
+    fn analizar_repercusiones(&mut self, vec_rep: Vec<Vec<Rafaga>>) {
         let tamano = self.matriz.len();
         for j in vec_rep {
             for i in j {
-                if i.x < tamano && i.y < tamano {
-                    self.herir_objeto(i.clone(), origen.clone());
-                    if !self.matriz[i.x][i.y].pasa_fuego_de(&origen) {
+                let posicion = i.get_posicion();
+                if posicion.x < tamano && posicion.y < tamano {
+                    self.herir_objeto(i.clone());
+                    if !self.matriz[posicion.x][posicion.y].pasa_fuego_de(i.get_id()) {
                         break;
                     }
                 }
@@ -159,12 +163,13 @@ impl Mapa {
 mod tests {
     use crate::mapa::Mapa;
     use crate::posicion::Posicion;
+    use crate::rafaga::Rafaga;
 
     #[test]
     fn test_bomba_normal_hiere_enemigo_y_no_lo_mata() {
         let maps = Mapa::new("B2 _ F2\n_ _ _\n_ _ _".to_string());
         let mut mapa = maps.unwrap();
-        mapa.herir_objeto(Posicion::new(0, 0), "_34".to_string());
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 0 }));
         assert_eq!(mapa.matriz[0][2].get_simbolo(), &"F1".to_string());
     }
 
@@ -172,7 +177,7 @@ mod tests {
     fn test_bomba_normal_hiere_enemigo_lo_mata() {
         let maps = Mapa::new("B2 _ F1\n_ _ _\n_ _ _".to_string());
         let mut mapa = maps.unwrap();
-        mapa.herir_objeto(Posicion::new(0, 0), "_34".to_string());
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 0 }));
         assert_eq!(mapa.matriz[0][2].get_simbolo(), &"_".to_string());
     }
 
@@ -180,7 +185,7 @@ mod tests {
     fn test_bomba_normal_no_pasa_pared() {
         let maps = Mapa::new("B2 W F1\n_ _ _\n_ _ _".to_string());
         let mut mapa = maps.unwrap();
-        mapa.herir_objeto(Posicion::new(0, 0), "_34".to_string());
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 0 }));
         assert_eq!(mapa.matriz[0][2].get_simbolo(), &"F1".to_string());
     }
 
@@ -188,7 +193,7 @@ mod tests {
     fn test_bomba_super_no_pasa_pared() {
         let maps = Mapa::new("S2 W F1\n_ _ _\n_ _ _".to_string());
         let mut mapa = maps.unwrap();
-        mapa.herir_objeto(Posicion::new(0, 0), "_34".to_string());
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 0 }));
         assert_eq!(mapa.matriz[0][2].get_simbolo(), &"F1".to_string());
     }
 
@@ -196,7 +201,7 @@ mod tests {
     fn test_bomba_normal_no_pasa_roca() {
         let maps = Mapa::new("B2 R F1\n_ _ _\n_ _ _".to_string());
         let mut mapa = maps.unwrap();
-        mapa.herir_objeto(Posicion::new(0, 0), "_34".to_string());
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 0 }));
         assert_eq!(mapa.matriz[0][2].get_simbolo(), &"F1".to_string());
     }
 
@@ -204,23 +209,23 @@ mod tests {
     fn test_bomba_super_pasa_pared() {
         let maps = Mapa::new("S2 R F1\n_ _ _\n_ _ _".to_string());
         let mut mapa = maps.unwrap();
-        mapa.herir_objeto(Posicion::new(0, 0), "_34".to_string());
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 0 }));
         assert_eq!(mapa.matriz[0][2].get_simbolo(), &"_".to_string());
     }
 
     #[test]
     fn test_bomba_explota_otra_bomba_y_esta_hiere_al_enemigo() {
-        let maps = Mapa::new("B2 0 B2\n_ _ F2\n_ _ _".to_string());
+        let maps = Mapa::new("B2 _ B2\n_ _ F2\n_ _ _".to_string());
         let mut mapa = maps.unwrap();
-        mapa.herir_objeto(Posicion::new(0, 0), "_34".to_string());
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 0 }));
         assert_eq!(mapa.matriz[1][2].get_simbolo(), &"F1".to_string());
     }
 
     #[test]
     fn test_bomba_desencadena_dos_explosiones_mas_que_dañan_al_enemigo() {
-        let maps = Mapa::new("B2 0 B3\n_ _ F2\n_ _ B2".to_string());
+        let maps = Mapa::new("B2 _ B3\n_ _ F2\n_ _ B2".to_string());
         let mut mapa = maps.unwrap();
-        mapa.herir_objeto(Posicion::new(0, 0), "_34".to_string());
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 0 }));
         assert_eq!(mapa.matriz[1][2].get_simbolo(), &"_".to_string());
     }
 
@@ -228,7 +233,7 @@ mod tests {
     fn test_bomba_se_desvia_y_lastima_al_enemigo() {
         let maps = Mapa::new("B8 _ DD\n_ _ _\n_ _ F2".to_string());
         let mut mapa = maps.unwrap();
-        mapa.herir_objeto(Posicion::new(0, 0), "_34".to_string());
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 0 }));
         assert_eq!(mapa.matriz[2][2].get_simbolo(), &"F1".to_string());
     }
 
@@ -236,7 +241,7 @@ mod tests {
     fn test_misma_bomba_alcanza_dos_veces_al_enemigo_y_lo_hiere_una_vez() {
         let maps = Mapa::new("B8 F2 DL\n_ _ _\n_ _ _".to_string());
         let mut mapa = maps.unwrap();
-        mapa.herir_objeto(Posicion::new(0, 0), "_34".to_string());
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 0 }));
         assert_eq!(mapa.matriz[0][1].get_simbolo(), &"F1".to_string());
     }
 
@@ -244,7 +249,7 @@ mod tests {
     fn test_ejemplo_enunciado_uno() {
         let maps = Mapa::new("B2 R R _ F1 _ _\n_ W R W _ W _\nB5 _ _ _ B2 _ _\n_ W _ W _ W _\n_ _ _ _ _ _ _\n_ W _ W _ W _\n_ _ _ _ _ _ _".to_string());
         let mut mapa = maps.unwrap();
-        mapa.herir_objeto(Posicion::new(0, 0), "_34".to_string());
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 0 }));
         assert_eq!(mapa.matriz[0][0].get_simbolo(), &"_".to_string());
         assert_eq!(mapa.matriz[2][0].get_simbolo(), &"_".to_string());
         assert_eq!(mapa.matriz[2][4].get_simbolo(), &"_".to_string());
@@ -258,7 +263,7 @@ mod tests {
     fn test_ejemplo_enunciado_dos() {
         let maps = Mapa::new("_ _ B2 _ B1 _ _\n_ W _ W _ W _\n_ _ B2 R F1 _ _\n_ W _ W R W _\n_ _ B4 _ _ _ _\n_ W _ W _ W _\n_ _ _ _ _ _ B1".to_string());
         let mut mapa = maps.unwrap();
-        mapa.herir_objeto(Posicion::new(4, 2), "_34".to_string());
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 4, y: 2 }));
         assert_eq!(mapa.matriz[0][2].get_simbolo(), &"_".to_string());
         assert_eq!(mapa.matriz[0][4].get_simbolo(), &"_".to_string());
         assert_eq!(mapa.matriz[2][2].get_simbolo(), &"_".to_string());
@@ -273,12 +278,56 @@ mod tests {
     fn test_ejemplo_enunciado_tres() {
         let maps = Mapa::new("_ _ _ _ _ _ _\n_ W _ W _ W _\nS4 R R R F2 _ _\n_ W _ W _ W _\nB2 _ B5 _ DU _ _\n_ W _ W _ W _\n_ _ _ _ _ _ _".to_string());
         let mut mapa = maps.unwrap();
-        mapa.herir_objeto(Posicion::new(4, 2), "_34".to_string());
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 4, y: 2 }));
         assert_eq!(mapa.matriz[4][0].get_simbolo(), &"_".to_string());
         assert_eq!(mapa.matriz[4][2].get_simbolo(), &"_".to_string());
         assert_eq!(mapa.matriz[2][4].get_simbolo(), &"_".to_string());
         assert_eq!(mapa.matriz[2][1].get_simbolo(), &"R".to_string());
         assert_eq!(mapa.matriz[2][2].get_simbolo(), &"R".to_string());
         assert_eq!(mapa.matriz[2][3].get_simbolo(), &"R".to_string());
+    }
+
+    #[test]
+    fn test_correccion_rafaga_debe_daniar_una_vez() {
+        let maps = Mapa::new("_ _ B7 _ _ _ _\n_ W _ W _ W _\n_ _ DR F3 DL _ _\n_ W _ W _ W _\n_ _ _ _ _ _ _\n_ W _ W _ W _\n_ _ _ _ _ _ _".to_string());
+        let mut mapa = maps.unwrap();
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 2 }));
+        assert_eq!(mapa.matriz[0][2].get_simbolo(), &"_".to_string());
+        assert_eq!(mapa.matriz[2][3].get_simbolo(), &"F2".to_string());
+    }
+
+    #[test]
+    fn test_correccion_bomba_en_cadena_1_c() {
+        let maps = Mapa::new("B2 _ B2 _ _ _ _\n_ W _ W _ W _\n_ _ B4 _ _ _ _\n_ W _ W _ W _\n_ _ _ _ _ _ _\n_ W _ W _ W _\n_ _ B3 _ _ _ B5".to_string());
+        let mut mapa = maps.unwrap();
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 0 }));
+        assert_eq!(mapa.matriz[0][0].get_simbolo(), &"_".to_string());
+        assert_eq!(mapa.matriz[0][2].get_simbolo(), &"_".to_string());
+        assert_eq!(mapa.matriz[2][2].get_simbolo(), &"_".to_string());
+        assert_eq!(mapa.matriz[2][6].get_simbolo(), &"_".to_string());
+        assert_eq!(mapa.matriz[6][6].get_simbolo(), &"B5".to_string());
+    }
+
+    #[test]
+    fn test_correccion_impactado_por_tres_bombas() {
+        let maps = Mapa::new("B2 _ B2 _ _ _ _\n_ W _ W _ W _\nB1 B2 F3 B2 _ _ _\n_ W _ W _ W _\n_ _ _ _ _ _ _\n_ W _ W _ W _\n_ _ _ _ _ _ _".to_string());
+        let mut mapa = maps.unwrap();
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 0 }));
+        assert_eq!(mapa.matriz[0][0].get_simbolo(), &"_".to_string());
+        assert_eq!(mapa.matriz[0][2].get_simbolo(), &"_".to_string());
+        assert_eq!(mapa.matriz[2][0].get_simbolo(), &"_".to_string());
+        assert_eq!(mapa.matriz[2][1].get_simbolo(), &"_".to_string());
+        assert_eq!(mapa.matriz[2][3].get_simbolo(), &"_".to_string());
+        assert_eq!(mapa.matriz[2][2].get_simbolo(), &"_".to_string());
+    }
+
+    #[test]
+    fn test_correccion_dos_desvios_enfrentados() {
+        let maps = Mapa::new("_ _ B7 _ _ _ _\n_ W _ W _ W _\n_ _ DR DL _ _ _\n_ W _ W _ W _\n_ _ _ _ _ _ _\n_ W _ W _ W _\n_ _ _ _ _ _ _".to_string());
+        let mut mapa = maps.unwrap();
+        mapa.herir_objeto(Rafaga::new("_".to_string(), 2, Posicion { x: 0, y: 2 }));
+        assert_eq!(mapa.matriz[0][2].get_simbolo(), &"_".to_string());
+        assert_eq!(mapa.matriz[2][2].get_simbolo(), &"DR".to_string());
+        assert_eq!(mapa.matriz[2][3].get_simbolo(), &"DL".to_string());
     }
 }

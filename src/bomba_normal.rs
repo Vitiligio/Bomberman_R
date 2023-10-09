@@ -1,4 +1,5 @@
 use crate::posicion::Posicion;
+use crate::rafaga::Rafaga;
 
 ///
 /// It is the definition of the common bomb type
@@ -21,22 +22,27 @@ use crate::posicion::Posicion;
 /// ```
 /// pub es_vaciable: bool,
 /// ```
-pub struct BombaNormal {
+pub struct Bomba {
     pub simbolo: String,
     rango: usize,
     posicion: Posicion,
     pub es_vaciable: bool,
+    id: String,
 }
 
-impl BombaNormal {
+impl Bomba {
     ///
     /// Creates a new common bomb instance when providing the 'rango' and 'posicion' values
-    pub fn new(puntos_rango: usize, posicion_original: Posicion) -> Self {
+    pub fn new(tipo_bomba: char, puntos_rango: usize, posicion_original: Posicion) -> Self {
         Self {
-            simbolo: format!("B{}", puntos_rango),
+            simbolo: format!("{}{}", tipo_bomba, puntos_rango),
             rango: puntos_rango,
-            posicion: posicion_original,
+            posicion: posicion_original.clone(),
             es_vaciable: true,
+            id: format!(
+                "{}{}{}{}",
+                tipo_bomba, puntos_rango, posicion_original.x, posicion_original.y
+            ),
         }
     }
     ///
@@ -45,6 +51,10 @@ impl BombaNormal {
     /// Also used to let know the map what position to empty once it explodes
     pub fn get_posicion(&self) -> &Posicion {
         &self.posicion
+    }
+
+    pub fn get_id(&self) -> &String {
+        &self.id
     }
 
     ///
@@ -64,25 +74,33 @@ impl BombaNormal {
     /// _ _ x _ _
     /// _ _ x _ _
     /// ```
-    pub fn explotar(&mut self) -> Vec<Vec<Posicion>> {
+    pub fn explotar(&mut self) -> Vec<Vec<Rafaga>> {
         self.simbolo = "_".to_string();
 
-        let mut vec_dires: Vec<Vec<Posicion>> = Vec::new();
+        let mut vec_dires: Vec<Vec<Rafaga>> = Vec::new();
 
-        let mut vec1: Vec<Posicion> = Vec::new();
-        let mut vec2: Vec<Posicion> = Vec::new();
-        let mut vec3: Vec<Posicion> = Vec::new();
-        let mut vec4: Vec<Posicion> = Vec::new();
+        let mut vec1: Vec<Rafaga> = Vec::new();
+        let mut vec2: Vec<Rafaga> = Vec::new();
+        let mut vec3: Vec<Rafaga> = Vec::new();
+        let mut vec4: Vec<Rafaga> = Vec::new();
 
         for i in 1..self.rango + 1 {
-            vec1.push(self.posicion.sumar((i, 0)));
-            vec3.push(self.posicion.sumar((0, i)));
+            vec1.push(Rafaga::new(
+                self.get_id().clone(),
+                self.rango - i,
+                self.posicion.sumar((i, 0)),
+            ));
+            vec3.push(Rafaga::new(
+                self.get_id().clone(),
+                self.rango - i,
+                self.posicion.sumar((0, i)),
+            ));
             match self.posicion.check_resta((i, 0)) {
-                Some(c) => vec2.push(c),
+                Some(c) => vec2.push(Rafaga::new(self.get_id().clone(), self.rango - i, c)),
                 None => continue,
             }
             match self.posicion.check_resta((0, i)) {
-                Some(c) => vec4.push(c),
+                Some(c) => vec4.push(Rafaga::new(self.get_id().clone(), self.rango - i, c)),
                 None => continue,
             }
         }
@@ -105,18 +123,18 @@ impl BombaNormal {
 #[cfg(test)]
 mod tests {
 
-    use crate::bomba_normal::BombaNormal;
+    use crate::bomba_normal::Bomba;
     use crate::posicion::Posicion;
 
     #[test]
     fn test_crear_bomba_con_rango() {
-        let bomba_normal = BombaNormal::new(2, Posicion { x: 0, y: 0 });
+        let bomba_normal = Bomba::new('B', 2, Posicion { x: 0, y: 0 });
         assert_eq!(bomba_normal.simbolo, "B2".to_string());
     }
 
     #[test]
     fn test_explotar_bomba_cambia_su_simbolo() {
-        let mut bomba_normal = BombaNormal::new(2, Posicion { x: 0, y: 0 });
+        let mut bomba_normal = Bomba::new('B', 2, Posicion { x: 0, y: 0 });
         bomba_normal.explotar();
         assert_eq!(bomba_normal.simbolo, "_".to_string());
     }
@@ -124,7 +142,7 @@ mod tests {
     #[test]
     fn test_explotar_bomba_devuelve_vec_posiciones() {
         let n = 3;
-        let mut bomba_normal = BombaNormal::new(n, Posicion { x: 5, y: 5 });
+        let mut bomba_normal = Bomba::new('B', n, Posicion { x: 5, y: 5 });
         let vec_posiciones_afectadas = bomba_normal.explotar();
         assert_ne!(vec_posiciones_afectadas.len() as usize, 0);
     }
