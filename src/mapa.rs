@@ -51,29 +51,38 @@ impl Mapa {
     }
 
     fn crear_casillero(vec: Vec<char>, posicion: Posicion) -> Result<Box<dyn Casillero>, String> {
-        if vec[0] == 'F' {
-            let numero_casteado = vec[1] as usize - '0' as usize;
-            Ok(Box::new(Enemigo::new(numero_casteado, posicion)))
-        } else if vec[0] == 'B' {
-            let numero_casteado = vec[1] as usize - '0' as usize;
-            Ok(Box::new(Bomba::new('B', numero_casteado, posicion)))
-        } else if vec[0] == 'S' {
-            let numero_casteado = vec[1] as usize - '0' as usize;
-            Ok(Box::new(Bomba::new('S', numero_casteado, posicion)))
-        } else if vec[0] == 'R' {
-            Ok(Box::new(Roca::new(posicion)))
-        } else if vec[0] == 'W' {
-            Ok(Box::new(Pared::new(posicion)))
-        } else if vec[0] == '_' {
-            Ok(Box::new(Vacio::new(posicion)))
-        } else if vec[0] == 'D' {
-            if vec.len() == 1 {
-                Err("ERROR: After D, it should be U, D, L or R".to_string())
-            } else {
-                Ok(Box::new(Desvio::new(vec[1], posicion)))
+        match vec[0] {
+            'F' => {
+                let numero_casteado = vec[1] as usize - '0' as usize;
+                return Ok(Box::new(Enemigo::new(numero_casteado, posicion)))
             }
-        } else {
-            Err("ERROR: Char is not recognized as valid".to_string())
+            'B' => {
+                let numero_casteado = vec[1] as usize - '0' as usize;
+                return Ok(Box::new(Bomba::new('B', numero_casteado, posicion)))
+            }
+            'S' => {
+                let numero_casteado = vec[1] as usize - '0' as usize;
+                return Ok(Box::new(Bomba::new('S', numero_casteado, posicion)))
+            }
+            'R' => {
+                return Ok(Box::new(Roca::new(posicion)))
+            }
+            'W' => {
+                return Ok(Box::new(Pared::new(posicion)))
+            }
+            '_' => {
+                return Ok(Box::new(Vacio::new(posicion)))
+            }
+            'D' => {
+                if vec.len() == 1 {
+                    return Err("ERROR: After D, it should be U, D, L or R".to_string())
+                } else {
+                    return Ok(Box::new(Desvio::new(vec[1], posicion)))
+                }
+            }
+            _ => {
+                return Err("ERROR: Char is not recognized as valid".to_string())
+            }
         }
     }
 
