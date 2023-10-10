@@ -18,6 +18,7 @@ use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
+use std::path::PathBuf;
 
 pub fn escribir_archivo(path: &Path, contenido: String) {
     // Create the output file
@@ -25,9 +26,8 @@ pub fn escribir_archivo(path: &Path, contenido: String) {
 
     if let Ok(file_output) = File::create(path) {
         let mut file = file_output;
-        match file.write_all(contenido.as_bytes()) {
-            Err(why) => println!("couldn't write to {}: {}", display, why),
-            Ok(_) => return,
+        if let Err(why) = file.write_all(contenido.as_bytes()) {
+            println!("couldn't write to {}: {}", display, why)
         }
     }
 }
@@ -57,7 +57,16 @@ fn main() {
     let path = Path::new(&args[1]);
 
     // Create a path to the desired output file
-    let dir_output = Path::new(&args[2]);
+    let mut file_output = PathBuf::new();
+    file_output.push(&args[2]);
+
+    match path.file_name() {
+        Some(p) => file_output.push(p),
+        _ => {
+            println!("Could not create output file");
+            return;
+        }
+    }
 
     let dir_x: usize;
     let dir_y: usize;
@@ -68,7 +77,7 @@ fn main() {
         dir_x = ter_arg;
     } else {
         let contenido = "ERROR: Could not parse first argument".to_string();
-        escribir_archivo(dir_output, contenido);
+        escribir_archivo(&file_output, contenido);
         return;
     }
 
@@ -76,7 +85,7 @@ fn main() {
         dir_y = cuart_arg;
     } else {
         let contenido = "ERROR: Could not parse second argument".to_string();
-        escribir_archivo(dir_output, contenido);
+        escribir_archivo(&file_output, contenido);
         return;
     }
 
@@ -88,19 +97,19 @@ fn main() {
             map_reading = s;
         } else {
             let contenido = "ERROR: Could not read file".to_string();
-            escribir_archivo(dir_output, contenido);
+            escribir_archivo(&file_output, contenido);
             return;
         }
     } else {
         let contenido = "ERROR: Could not open file".to_string();
-        escribir_archivo(dir_output, contenido);
+        escribir_archivo(&file_output, contenido);
         return;
     }
 
     // Create the map from the contents of the file, active the bomb in the coordinates provided
     // and generated the output in a string
-    match Mapa::new(map_reading.clone()) {
-        Ok(maps) => activar_primer_bomba(maps, dir_y, dir_x, dir_output),
-        Err(e) => escribir_archivo(dir_output, e),
+    match Mapa::new(map_reading) {
+        Ok(maps) => activar_primer_bomba(maps, dir_y, dir_x, &file_output),
+        Err(e) => escribir_archivo(&file_output, e),
     }
 }

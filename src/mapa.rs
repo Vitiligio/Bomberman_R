@@ -54,35 +54,27 @@ impl Mapa {
         match vec[0] {
             'F' => {
                 let numero_casteado = vec[1] as usize - '0' as usize;
-                return Ok(Box::new(Enemigo::new(numero_casteado, posicion)))
+                Ok(Box::new(Enemigo::new(numero_casteado, posicion)))
             }
             'B' => {
                 let numero_casteado = vec[1] as usize - '0' as usize;
-                return Ok(Box::new(Bomba::new('B', numero_casteado, posicion)))
+                Ok(Box::new(Bomba::new('B', numero_casteado, posicion)))
             }
             'S' => {
                 let numero_casteado = vec[1] as usize - '0' as usize;
-                return Ok(Box::new(Bomba::new('S', numero_casteado, posicion)))
+                Ok(Box::new(Bomba::new('S', numero_casteado, posicion)))
             }
-            'R' => {
-                return Ok(Box::new(Roca::new(posicion)))
-            }
-            'W' => {
-                return Ok(Box::new(Pared::new(posicion)))
-            }
-            '_' => {
-                return Ok(Box::new(Vacio::new(posicion)))
-            }
+            'R' => Ok(Box::new(Roca::new(posicion))),
+            'W' => Ok(Box::new(Pared::new(posicion))),
+            '_' => Ok(Box::new(Vacio::new(posicion))),
             'D' => {
                 if vec.len() == 1 {
-                    return Err("ERROR: After D, it should be U, D, L or R".to_string())
+                    Err("ERROR: After D, it should be U, D, L or R".to_string())
                 } else {
-                    return Ok(Box::new(Desvio::new(vec[1], posicion)))
+                    Ok(Box::new(Desvio::new(vec[1], posicion)))
                 }
             }
-            _ => {
-                return Err("ERROR: Char is not recognized as valid".to_string())
-            }
+            _ => Err("ERROR: Char is not recognized as valid".to_string()),
         }
     }
 
